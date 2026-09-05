@@ -1,10 +1,23 @@
 # Assemblyhook
-A simple assembly webhook demonstration
-What i learnt:
-Registers and Memory, including messing with stack and heap operations.
-Syntax for x86-64 architecture (there's a bug on my monitor).
-Creating and managing sockets at a low level and TCP/IP communication.
-HTTP requests, including headers and body formatting, because that was essential for sending messages to the webhook.
-Data declaration and initialization with db for strings and resb for buffers.
-Efficient memory use by understanding .data and .bss segments.
-String handling, especially managing null-terminated strings for input and output.
+
+Sends a message to a Discord webhook from x86-64 assembly on Linux. No libc — the socket, connect and HTTP request are all done with raw syscalls.
+
+I wrote it to see what actually happens underneath an HTTP library: opening a TCP socket, filling in a `sockaddr_in` by hand, and formatting the request bytes yourself.
+
+## Build and run
+
+    nasm -f elf64 discord_webhook_bot.asm -o webhook.o
+    ld webhook.o -o webhook
+    ./webhook
+
+It asks for the webhook URL and the message.
+
+## What I learnt
+
+- Registers, the stack and heap, and the x86-64 syscall calling convention
+- Creating and connecting sockets at the syscall level
+- HTTP request formatting — headers and body have to be exact or the server rejects it
+- `.data` vs `.bss`, `db` for strings and `resb` for buffers
+- Handling null-terminated strings by hand
+
+Caveat: it's plain HTTP with fixed-size buffers and no bounds checks. Discord webhooks need HTTPS, so treat it as a learning exercise rather than a working bot.
